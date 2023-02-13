@@ -2,9 +2,78 @@
   que permite manipular los atributos de canvas*/
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext('2d');
+//let numLados = document.getElementById("lados").value; //poligono
+var numLados = 8;
+var radiopoligono = 100;
+
+//función para comenzar y terminar el dibujo, la mandaré llamar cada que se realice uno con los algoritmos
+canvas.onmousedown = function(e) {
+  x1 = e.clientX - canvas.offsetLeft;
+  y1 = e.clientY - canvas.offsetTop;
+}
+canvas.onmouseup = function(e) {
+  x2 = e.clientX - canvas.offsetLeft;
+  y2 = e.clientY - canvas.offsetTop;
+  if (dibujarCuadrado) {
+    dibujarcuadrado(x1, y1, x2, y2);
+  }if (dibujarlinea) {
+    bresenhamlinea(x1, y1, x2, y2);
+  }if (dibujarcirculo){
+    var x0 = (x1 + x2) / 2;
+    var y0 = (y1 + y2) / 2; //calcular el radio y las coordenadas centrales de los puntos del canvas
+    var radio = Math.sqrt(Math.pow(x2 - x0, 2) + Math.pow(y2 - y0, 2)); //formula para el radio
+    bresenhamcirculo(x0, y0, radio);
+  }if (dibujarRectangulo){
+    dibujarrectangulo(x1, y1, x2, y2);
+  }if (dibujarPoligono){
+    dibujarpoligono(canvas, numLados, radiopoligono);
+  }
+}
+
+//funcion para dibujar 
+function dibujarPincel(canvas, context) {
+  let X1, Y1;
+  //funcion para dibujar
+  const dibujar = (cursorX, cursorY) => {
+  context.beginPath(); //permite dibujar en otro lado del lienzo
+  context.moveTo(X1, Y1);
+  context.lineWidth= 10; //grosor de línea del pincel
+  context.strokeStyle = "#000";
+  context.lineCap = "round";
+  context.lineJoin ="round"; //forma del trazo del pincel: redondeado
+  context.lineTo(cursorX, cursorY);
+  context.stroke(); //dibuja el trazo
+
+  X1 = cursorX;
+  Y1 = cursorY;
+
+}
+//obtener las variables con el mouse
+const mouseClick = (evt) => {
+  X1 = evt.offsetX;
+  Y1 = evt.offsetY;
+  dibujar(X1, Y1);
+  canvas.addEventListener("mousemove", MouseMoving);
+}
+//que se mueva el trazo con el mouse 
+const MouseMoving = (evt) => {
+  dibujar(evt.offsetX, evt.offsetY)
+}
+
+//funcion para cuando se suelta el click
+const mouseUp = (evt) => {
+  canvas.removeEventListener("mousemove", MouseMoving);
+}
+
+//escucha el evento del mouse 
+canvas.addEventListener("mousedown", mouseClick);
+canvas.addEventListener("mouseup", mouseUp);
+
+}
+
 
   //algoritmo DDA
-  function DDAlinea(x1, y1, x2, y2) {
+  /*function DDAlinea(x1, y1, x2, y2) {
 
     var dx = x2 - x1;
     var dy = y2 - y1; 
@@ -21,29 +90,29 @@ const context = canvas.getContext('2d');
       context.lineTo(x, y);
     }
     context.stroke();
-  }
+  }*/
 
 //algoritmo de bresenham
-function bresenhamlinea(x1, y1, x2, y2) {
+function bresenhamlinea(x1, y1, x2, y2){
 
-  
+    context.beginPath();
+    context.moveTo(x1, y1);
     var deltaX = Math.abs(x2 - x1);
     var deltaY = Math.abs(y2 - y1); //pendiente
     if (x1 < x2) { //con estas condiciones se da la dirección en que se va a dibujar la línea (der o izq)
-        var auxX = 1;
-      } else {
-        var auxX = -1;
-      }
-      
+      var auxX = 1;
+    } else {
+      var auxX = -1;
+    }
+
     if (y1 < y2) {
-        var auxY = 1;
-      } else {
-        var auxY = -1;
-      }
+      var auxY = 1;
+    } else {
+      var auxY = -1;
+    }
     var dif = deltaX - deltaY; //inicializar la variable de diferencia entre las coordenadas de la línea actual y la línea ideal
-    
     while (true) {
-      context.fillRect(x1, y1, 1, 1); //dibujo un pixel en la posicion actual del cursor según la iteración
+      context.lineTo(x1, y1); //dibujo un pixel en la posicion actual del cursor según la iteración
       if (x1 == x2 && y1 == y2) break; //con esta condición verifico si ya llegó a la posición final y si sí, termina de dibujar la línea
       var acum = 2 * dif; //medida de la pendiente de la línea 
       if (acum > -deltaY) { //detemino si se debe mover el cursor en X o Y
@@ -55,10 +124,14 @@ function bresenhamlinea(x1, y1, x2, y2) {
         y1 += auxY;
       }
     }
+    context.stroke();
   }
 
+
+
+
   //algoritmo de punto medio 
-function puntomediolinea(x1, y1, x2, y2){
+/*function puntomediolinea(x1, y1, x2, y2){
 
     var dx = x2 - x1;
     var dy = y2 - y1; 
@@ -76,24 +149,56 @@ function puntomediolinea(x1, y1, x2, y2){
     x += IncX;
     y += IncY;
     }
-  }
+  }*/
 
-function cuadrado(x1, y1, x2, y2){
+  function dibujarcuadrado(x1, y1, x2, y2){
+    context.beginPath();
 
+        var tamaño = Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2));
+        context.moveTo(x1, y1);
+        context.lineTo(x1 + tamaño, y1);
+        context.lineTo(x1 + tamaño, y1 + tamaño);
+        context.lineTo(x1, y1 + tamaño);
+        context.lineTo(x1, y1);
+        context.stroke();
+
+    }
+
+  function dibujarrectangulo(x1, y1, x2, y2) {
+   context.beginPath();
+    
+    var width = Math.abs(x1 - x2);
+    var height = Math.abs(y1 - y2); //de esta forma se obtiene la altura y la base del rectangulo
     context.moveTo(x1, y1);
-    context.lineTo(x2, y1);
-    context.moveTo(x2, y1);
-    context.lineTo(x2, y2);
-    context.moveTo(x2, y2);
-    context.lineTo(x1, y2);
-    context.moveTo(x1, y2);
+    context.lineTo(x1 + width, y1);
+    context.lineTo(x1 + width, y1 + height);
+    context.lineTo(x1, y1 + height);
     context.lineTo(x1, y1);
     context.stroke();
+    }
+    
+  function dibujarpoligono(canvas, numLados, radiopoligono) {
+      var angulo = 360 / numLados; //calcular el ángulo de cada lado
+      var x = canvas.width / 2 + radiopoligono; //coordenadas iniciales para el primer lado
+      var y = canvas.height / 2; 
+      context.beginPath();
+      context.moveTo(x, y);
+      for (var i = 1; i <= numLados; i++) {
+        x = canvas.width / 2 + radiopoligono * Math.cos((angulo * i) * Math.PI / 180); //calcula la coordenada x
+        y = canvas.height / 2 + radiopoligono * Math.sin((angulo * i) * Math.PI / 180); 
+        context.lineTo(x, y);
+      }
+      context.closePath();
+      context.stroke();
+    }
+    
+    
+    
 
-}
+
 
 /* CIRCULOS */
-function puntomediocirculo(context, x0, y0, radio) {
+/*function puntomediocirculo(context, x0, y0, radio) {
   var x = radio;
   var y = 0;
   var puntoactual = 1 - x; //define donde comienza el punto desde el centro del circulo y si debe cambiarse 
@@ -115,9 +220,10 @@ function puntomediocirculo(context, x0, y0, radio) {
       puntoactual += 2 * (y - x) + 1;
     }
   }
-}
+}*/
 
 function bresenhamcirculo(x0, y0, radio) {
+  context.beginPath();
   var x = radio;
   var y = 0;
   var puntoinicial = 1 - x;  
@@ -139,13 +245,27 @@ function bresenhamcirculo(x0, y0, radio) {
       }
   }
 }
+    var dibujarPoligono = false;
+    var dibujarCuadrado = false;
+    var dibujarlinea = false;
+    var dibujarcirculo = false;
+    var dibujarRectangulo = false;
+    //dibujarPincel(canvas, context);
+
+   // dibujarpoligono(canvas, 5, 50);
 
 
-    //cuadrado(100, 100, 200, 200);
-    //DDAlinea(50, 10, 50, 200); //linea recta
-    //bresenhamlinea(100, 100, 1000, 1000);
+
+
+    
+    //dibujarlinea(canvas);
+    //dibujarcuadrado();
+   
+    
+    //DDAlinea(x1, y1, x2, y2); //linea recta
+    //bresenhamlinea(canvas, context);
     //puntomediolinea(10, 10, 100, 100);
-    puntomediocirculo(context, canvas.width / 2, canvas.height / 2, 90); //dibujo el circulo desde el centro del canvas
+    //puntomediocirculo(context, canvas.width / 2, canvas.height / 2, 90); //dibujo el circulo desde el centro del canvas
     //bresenhamcirculo(250, 250, 100);
 
 
