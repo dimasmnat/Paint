@@ -12,10 +12,10 @@
     <div class="menu-container">
         <a>Herramientas</a>
         <br />
-        <!--<label for="sides">Número de lados:</label>
-        <input type="number" id="lados" min="3" value="3">
+       
+      
         <br />
-        <br />-->
+        <br />
         <div id="menu">
             <button id="lapiz" onclick="seleccionarLapiz()">Lápiz</button>
             <button id="linea" onclick="seleccionarLinea()">Línea</button>
@@ -23,6 +23,13 @@
             <button id="circulo" onclick="seleccionarCirculo()">Circulo</button>
             <button id="rectangulo" onclick="seleccionarRectangulo()">Rectángulo</button>
             <button id="poligono" onclick="seleccionarPoligono()">Polígono</button>
+            <input type="number" id="lados" min="3" value="3">
+            <label for="color-picker">Color:</label>
+            <input type="color" id="color-picker" value="#000000">
+            <label for="line-width">Grosor de línea:</label>
+            <input type="range" id="line-width" min="1" max="10" value="1">
+            <button id="borrador" onclick="seleccionarBorrador()">Borrador</button>
+
           </div>
           
           

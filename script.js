@@ -3,8 +3,21 @@
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext('2d');
 
-//let numLados = document.getElementById("lados").value; //poligono
-var numLados = 6;
+ //funciones de color y grosor de línea
+let color = "#000000"; // color por defecto es negro
+let lineWidth = 1; // grosor de línea por defecto es 1
+
+const colorPicker = document.getElementById("color-picker");
+colorPicker.addEventListener("change", function() {
+color = colorPicker.value;
+});
+
+const lineWidthPicker = document.getElementById("line-width");
+lineWidthPicker.addEventListener("change", function() {
+lineWidth = lineWidthPicker.value;
+});
+
+
 var radiopoligono = 100;
 let x1, y1, x2, y2;
 
@@ -58,6 +71,9 @@ function seleccionarPoligono() {
   dibujarRectangulo = false;
   dibujarPoligono = true;
   dibujarpincel = false;
+  canvas.addEventListener("click", function(event) {
+    dibujarpoligono(canvas, document.getElementById("lados").value, radiopoligono, event.offsetX, event.offsetY);
+  });
 }
 
 function seleccionarLapiz(){
@@ -89,58 +105,70 @@ canvas.onmouseup = function(e) {
       var x0 = (x1 + x2) / 2;
       var y0 = (y1 + y2) / 2;
       var radio = Math.sqrt(Math.pow(x2 - x0, 2) + Math.pow(y2 - y0, 2));
-      bresenhamcirculo(x0, y0, radio);
+      bresenhamcirculo(x0, y0, radio, color, lineWidth);
     } else if (dibujarRectangulo) {
       dibujarrectangulo(x1, y1, x2, y2);
     } else if (dibujarPoligono) {
-      dibujarpoligono(canvas, numLados, radiopoligono);
+      var x0 = (x1 + x2) / 2;
+      var y0 = (y1 + y2) / 2;
+      var radiopoligono = Math.sqrt(Math.pow(x2 - x0, 2) + Math.pow(y2 - y0, 2));
+      dibujarpoligono(canvas, document.getElementById("lados").value, radiopoligono, x2, y2);
     }else if(dibujarpincel){
-      dibujarPincel(canvas, context)
+      dibujarPincel(canvas, context, color, lineWidth)
     }
   
   }
 }
+//funcion para borrar
+function seleccionarBorrador() {
+  color = "#ffffff"; // Establecer el color del lápiz a blanco
+  lineWidth = 20; // Establecer el ancho de línea a 20
+}
 
 //funcion para dibujar 
-  function dibujarPincel(canvas, context) {
-  let X1, Y1;
-  //funcion para dibujar
-  const dibujar = (cursorX, cursorY) => {
-  context.beginPath(); //permite dibujar en otro lado del lienzo
-  context.moveTo(X1, Y1);
-  context.lineWidth= 10; //grosor de línea del pincel
-  context.strokeStyle = "#000";
-  context.lineCap = "round";
-  context.lineJoin ="round"; //forma del trazo del pincel: redondeado
-  context.lineTo(cursorX, cursorY);
-  context.stroke(); //dibuja el trazo
+  function dibujarPincel(canvas, context, color, lineWidth) {
+      let X1, Y1;
+      let dibujandoBorrador = false; // Bandera para saber si se está dibujando con el borrador
+    
+      // Función para dibujar
+      const dibujar = (cursorX, cursorY) => {
+        context.beginPath(); // Permite dibujar en otro lado del lienzo
+        context.strokeStyle = dibujandoBorrador ? "#ffffff" : color; // Usar el color adecuado
+        context.lineWidth = dibujandoBorrador ? 20 : lineWidth; // Usar el ancho de línea adecuado
+        context.lineCap = "round";
+        context.moveTo(X1, Y1);
+        context.lineTo(cursorX, cursorY);
+        context.stroke();
+    
+        X1 = cursorX;
+        Y1 = cursorY;
+      }
+    
+      // Obtener las variables con el mouse
+      const mouseClick = (evt) => {
+        X1 = evt.offsetX;
+        Y1 = evt.offsetY;
+        dibujandoBorrador = (color === "#ffffff"); // Si el color es blanco, se está dibujando con el borrador
+        dibujar(X1, Y1);
+        canvas.addEventListener("mousemove", mouseMoving);
+      }
+    
+      // Que se mueva el trazo con el mouse
+      const mouseMoving = (evt) => {
+        dibujar(evt.offsetX, evt.offsetY);
+      }
+    
+      // Función para cuando se suelta el click
+      const mouseUp = (evt) => {
+        canvas.removeEventListener("mousemove", mouseMoving);
+      }
+    
+      // Escucha el evento del mouse
+      canvas.addEventListener("mousedown", mouseClick);
+      canvas.addEventListener("mouseup", mouseUp);
+    }
+  
 
-  X1 = cursorX;
-  Y1 = cursorY;
-
-}
-//obtener las variables con el mouse
-const mouseClick = (evt) => {
-  X1 = evt.offsetX;
-  Y1 = evt.offsetY;
-  dibujar(X1, Y1);
-  canvas.addEventListener("mousemove", MouseMoving);
-}
-//que se mueva el trazo con el mouse 
-const MouseMoving = (evt) => {
-  dibujar(evt.offsetX, evt.offsetY)
-}
-
-//funcion para cuando se suelta el click
-const mouseUp = (evt) => {
-  canvas.removeEventListener("mousemove", MouseMoving);
-}
-
-//escucha el evento del mouse 
-canvas.addEventListener("mousedown", mouseClick);
-canvas.addEventListener("mouseup", mouseUp);
-
-}
 
 
   //algoritmo DDA
@@ -167,6 +195,9 @@ canvas.addEventListener("mouseup", mouseUp);
 function bresenhamlinea(x1, y1, x2, y2){
 
     context.beginPath();
+    context.strokeStyle = color;
+    context.lineWidth = lineWidth;
+    context.lineCap = "round";
     context.moveTo(x1, y1);
     var deltaX = Math.abs(x2 - x1);
     var deltaY = Math.abs(y2 - y1); //pendiente
@@ -224,7 +255,9 @@ function bresenhamlinea(x1, y1, x2, y2){
 
   function dibujarcuadrado(x1, y1, x2, y2){
     context.beginPath();
-
+    context.strokeStyle = color;
+    context.lineWidth = lineWidth;
+    context.lineCap = "round";
         var tamaño = Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2));
         context.moveTo(x1, y1);
         context.lineTo(x1 + tamaño, y1);
@@ -237,7 +270,10 @@ function bresenhamlinea(x1, y1, x2, y2){
 
   function dibujarrectangulo(x1, y1, x2, y2) {
    context.beginPath();
-    
+   context.strokeStyle = color;
+   context.lineWidth = lineWidth;
+   context.lineCap = "round";
+
     var width = Math.abs(x1 - x2);
     var height = Math.abs(y1 - y2); //de esta forma se obtiene la altura y la base del rectangulo
     context.moveTo(x1, y1);
@@ -248,16 +284,19 @@ function bresenhamlinea(x1, y1, x2, y2){
     context.stroke();
     }
     
-  function dibujarpoligono(canvas, numLados, radiopoligono) {
+    function dibujarpoligono(canvas, numLados, radiopoligono, x, y) {
       var angulo = 360 / numLados; //calcular el ángulo de cada lado
-      var x = canvas.width / 2 + radiopoligono; //coordenadas iniciales para el primer lado
-      var y = canvas.height / 2; 
       context.beginPath();
+      context.strokeStyle = color;
+      context.lineWidth = lineWidth;
+      context.lineCap = "round";
       context.moveTo(x, y);
       for (var i = 1; i <= numLados; i++) {
-        x = canvas.width / 2 + radiopoligono * Math.cos((angulo * i) * Math.PI / 180); //calcula la coordenada x
-        y = canvas.height / 2 + radiopoligono * Math.sin((angulo * i) * Math.PI / 180); 
-        context.lineTo(x, y);
+        var x2 = x + radiopoligono * Math.cos((angulo * i) * Math.PI / 180); //calcula la coordenada x
+        var y2 = y + radiopoligono * Math.sin((angulo * i) * Math.PI / 180); //calcula la coordenada y
+        context.lineTo(x2, y2);
+        x = x2;
+        y = y2;
       }
       context.closePath();
       context.stroke();
@@ -293,29 +332,34 @@ function bresenhamlinea(x1, y1, x2, y2){
   }
 }*/
 
-function bresenhamcirculo(x0, y0, radio) {
-  context.beginPath();
-  var x = radio;
-  var y = 0;
-  var puntoinicial = 1 - x;  
-  while (y <= x) {
-      context.fillRect(x + x0, y + y0, 1, 1);
-      context.fillRect(y + x0, x + y0, 1, 1);
-      context.fillRect(-x + x0, y + y0, 1, 1);
-      context.fillRect(-y + x0, x + y0, 1, 1);
-      context.fillRect(-x + x0, -y + y0, 1, 1);
-      context.fillRect(-y + x0, -x + y0, 1, 1);
-      context.fillRect(x + x0, -y + y0, 1, 1);
-      context.fillRect(y + x0, -x + y0, 1, 1);
-      y++;
-      if (puntoinicial<=0) {
-          puntoinicial += 2 * y + 1;
+function bresenhamcirculo(x, y, radio, color, lineWidth) {
+    // Iniciar la ruta de dibujo
+    context.beginPath();
+
+    // Dibujar el círculo utilizando el método trigonométrico
+    for (let i = 0; i < Math.PI * 2; i += 0.01) {
+      const xPos = x + radio * Math.cos(i);
+      const yPos = y + radio * Math.sin(i);
+  
+      if (i === 0) {
+        context.moveTo(xPos, yPos);
       } else {
-          x--;
-          puntoinicial += 2 * (y - x) + 1;
+        context.lineTo(xPos, yPos);
       }
+    }
+  
+    // Establecer el grosor y el color del trazo
+    context.lineWidth = lineWidth;
+    context.strokeStyle = color;
+  
+    // Dibujar el círculo
+    context.stroke();
   }
-}
+
+
+
+
+
 
     //dibujarPincel(canvas, context);
 
@@ -334,6 +378,10 @@ function bresenhamcirculo(x0, y0, radio) {
     //puntomediolinea(10, 10, 100, 100);
     //puntomediocirculo(context, canvas.width / 2, canvas.height / 2, 90); //dibujo el circulo desde el centro del canvas
     //bresenhamcirculo(250, 250, 100);
+
+
+
+
 
 
 
