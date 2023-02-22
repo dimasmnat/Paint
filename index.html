@@ -16,12 +16,16 @@
         <input type="number" id="lados" min="3" value="3">
         <br />
         <br />-->
-        <button onclick=" dibujarPincel(canvas, context)">Lápiz</button>
-        <button onclick="dibujarlinea = true">Línea</button>
-        <button onclick="dibujarCuadrado = true">Cuadrado</button>
-        <button onclick="dibujarcirculo = true">Círculo</button>
-        <button onclick="dibujarRectangulo = true">Rectángulo</button>
-        <button onclick="dibujarPoligono = true">Polígono</button>
+        <div id="menu">
+            <button id="lapiz" onclick="seleccionarLapiz()">Lápiz</button>
+            <button id="linea" onclick="seleccionarLinea()">Línea</button>
+            <button id="cuadrado" onclick="seleccionarCuadrado()">Cuadrado</button>
+            <button id="circulo" onclick="seleccionarCirculo()">Circulo</button>
+            <button id="rectangulo" onclick="seleccionarRectangulo()">Rectángulo</button>
+            <button id="poligono" onclick="seleccionarPoligono()">Polígono</button>
+          </div>
+          
+          
     </div>
     <main class="main-container">
         <canvas id="canvas" width="1300" height="600"></canvas>

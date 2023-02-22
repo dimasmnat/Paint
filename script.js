@@ -2,9 +2,74 @@
   que permite manipular los atributos de canvas*/
 const canvas = document.getElementById("canvas");
 const context = canvas.getContext('2d');
+
 //let numLados = document.getElementById("lados").value; //poligono
-var numLados = 8;
+var numLados = 6;
 var radiopoligono = 100;
+let x1, y1, x2, y2;
+
+let dibujarlinea = false;
+let dibujarCuadrado = false;
+let dibujarcirculo = false;
+let dibujarRectangulo = false;
+let dibujarPoligono = false;
+let dibujarpincel = false;
+
+function seleccionarLinea() {
+  dibujarlinea = true;
+  dibujarCuadrado = false;
+  dibujarcirculo = false;
+  dibujarRectangulo = false;
+  dibujarPoligono = false;
+  dibujarpincel = false;
+}
+
+function seleccionarCuadrado() {
+  dibujarlinea = false;
+  dibujarCuadrado = true;
+  dibujarcirculo = false;
+  dibujarRectangulo = false;
+  dibujarPoligono = false;
+  dibujarpincel = false;
+}
+
+function seleccionarCirculo() {
+  dibujarlinea = false;
+  dibujarCuadrado = false;
+  dibujarcirculo = true;
+  dibujarRectangulo = false;
+  dibujarPoligono = false;
+  dibujarpincel = false;
+}
+
+function seleccionarRectangulo() {
+  dibujarlinea = false;
+  dibujarCuadrado = false;
+  dibujarcirculo = false;
+  dibujarRectangulo = true;
+  dibujarPoligono = false;
+  dibujarpincel = false;
+}
+
+function seleccionarPoligono() {
+  dibujarlinea = false;
+  dibujarCuadrado = false;
+  dibujarcirculo = false;
+  dibujarRectangulo = false;
+  dibujarPoligono = true;
+  dibujarpincel = false;
+}
+
+function seleccionarLapiz(){
+  dibujarlinea = false;
+  dibujarCuadrado = false;
+  dibujarcirculo = false;
+  dibujarRectangulo = false;
+  dibujarPoligono = false;
+  dibujarpincel = true;
+}
+
+
 
 //función para comenzar y terminar el dibujo, la mandaré llamar cada que se realice uno con los algoritmos
 canvas.onmousedown = function(e) {
@@ -12,26 +77,32 @@ canvas.onmousedown = function(e) {
   y1 = e.clientY - canvas.offsetTop;
 }
 canvas.onmouseup = function(e) {
-  x2 = e.clientX - canvas.offsetLeft;
-  y2 = e.clientY - canvas.offsetTop;
-  if (dibujarCuadrado) {
-    dibujarcuadrado(x1, y1, x2, y2);
-  }if (dibujarlinea) {
-    bresenhamlinea(x1, y1, x2, y2);
-  }if (dibujarcirculo){
-    var x0 = (x1 + x2) / 2;
-    var y0 = (y1 + y2) / 2; //calcular el radio y las coordenadas centrales de los puntos del canvas
-    var radio = Math.sqrt(Math.pow(x2 - x0, 2) + Math.pow(y2 - y0, 2)); //formula para el radio
-    bresenhamcirculo(x0, y0, radio);
-  }if (dibujarRectangulo){
-    dibujarrectangulo(x1, y1, x2, y2);
-  }if (dibujarPoligono){
-    dibujarpoligono(canvas, numLados, radiopoligono);
+  canvas.onmouseup = function(e) {
+    x2 = e.clientX - canvas.offsetLeft;
+    y2 = e.clientY - canvas.offsetTop;
+    
+    if(dibujarlinea) {
+      bresenhamlinea(x1, y1, x2, y2);
+    } else if (dibujarCuadrado) {
+      dibujarcuadrado(x1, y1, x2, y2);
+    } else if (dibujarcirculo) {
+      var x0 = (x1 + x2) / 2;
+      var y0 = (y1 + y2) / 2;
+      var radio = Math.sqrt(Math.pow(x2 - x0, 2) + Math.pow(y2 - y0, 2));
+      bresenhamcirculo(x0, y0, radio);
+    } else if (dibujarRectangulo) {
+      dibujarrectangulo(x1, y1, x2, y2);
+    } else if (dibujarPoligono) {
+      dibujarpoligono(canvas, numLados, radiopoligono);
+    }else if(dibujarpincel){
+      dibujarPincel(canvas, context)
+    }
+  
   }
 }
 
 //funcion para dibujar 
-function dibujarPincel(canvas, context) {
+  function dibujarPincel(canvas, context) {
   let X1, Y1;
   //funcion para dibujar
   const dibujar = (cursorX, cursorY) => {
@@ -245,11 +316,7 @@ function bresenhamcirculo(x0, y0, radio) {
       }
   }
 }
-    var dibujarPoligono = false;
-    var dibujarCuadrado = false;
-    var dibujarlinea = false;
-    var dibujarcirculo = false;
-    var dibujarRectangulo = false;
+
     //dibujarPincel(canvas, context);
 
    // dibujarpoligono(canvas, 5, 50);
@@ -268,8 +335,6 @@ function bresenhamcirculo(x0, y0, radio) {
     //puntomediocirculo(context, canvas.width / 2, canvas.height / 2, 90); //dibujo el circulo desde el centro del canvas
     //bresenhamcirculo(250, 250, 100);
 
-
-  
 
 
 
